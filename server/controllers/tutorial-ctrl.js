@@ -1,16 +1,19 @@
-const Tutorial = require('../models/tutorial-model')
+const Tutorial = require("../models/tutorial-model")
+const scraper = require("../scrapers/youtubeScraper")
 
-createTutorial = (req, res) => {
+createTutorial = async (req, res) => {
   const body = req.body
 
   if (!body) {
     return res.status(400).json({
       success: false,
-      error: 'You must provide a tutorial',
+      error: 'You must provide a tutorial link',
     })
   }
-  //const scrapeResults = await youtubeScraper(body.url);
-  const tutorial = new Tutorial(body)
+
+  const arr = ["React", "Web"]
+  const scrapeResults = await scraper.scrapeYoutube(body.videoCode, arr, false);
+  const tutorial = new Tutorial(scrapeResults)
 
   if (!tutorial) {
     return res.status(400).json({ success: false, error: err })
@@ -20,6 +23,7 @@ createTutorial = (req, res) => {
     .save()
     .then(() => {
       return res.status(201).json({
+        tutorial,
         success: true,
         id: tutorial._id,
         message: `${tutorial.title} added to db!`,
@@ -78,7 +82,7 @@ deleteTutorial = async (req, res) => {
     if (!tutorial) {
       return res
         .status(404)
-        .json({ success: false, error: `tutorial not found` })
+        .json({ success: false, error: `Tutorial not found` })
     }
 
     return res.status(200).json({ success: true, data: tutorial })
