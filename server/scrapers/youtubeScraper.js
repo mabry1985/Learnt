@@ -12,7 +12,7 @@ const sample = {
     playlist: false,
 };
 
-async function scrapeYoutube(videoCode, arr) {
+async function scrapeYoutube(videoCode, arr, bool) {
   const browser = await puppeteer.launch({ headless: true });
   const page = await browser.newPage();
   const url = `https://www.youtube.com/watch?v=${videoCode}`
@@ -27,6 +27,7 @@ async function scrapeYoutube(videoCode, arr) {
   const date = $("#date > yt-formatted-string").text();
   const embedUrl = `https://www.youtube.com/embed/${videoCode}`;
   const tags = arr;
+  const playlist = bool;
 
   const tutorial = {
     title,
@@ -34,7 +35,8 @@ async function scrapeYoutube(videoCode, arr) {
     description,
     date,
     embedUrl,
-    tags
+    tags,
+    playlist
   }
 
   console.log(tutorial)
@@ -43,4 +45,6 @@ async function scrapeYoutube(videoCode, arr) {
 
 const arr = ["Javascript", "Web", "React"];
 
-scrapeYoutube("GUEB9FogoP8", arr);
+module.exports = {
+  scrapeYoutube
+}
