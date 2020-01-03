@@ -40,7 +40,6 @@ class TutorialsList extends Component {
 
   render() {
     const { tutorials, isLoading } = this.state;
-    console.log("TCL: TutorialsList -> render -> tutorials", tutorials);
 
     return <Wrapper>
       <h1>Tutorials</h1>
