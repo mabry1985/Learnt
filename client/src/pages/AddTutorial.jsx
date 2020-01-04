@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import EditResults from "./EditResults"
+import Loading from "../components/Loading"
 import api from "../api";
 
 import styled from "styled-components";
@@ -45,6 +46,7 @@ class AddTutorial extends Component {
 
     this.state = {
       code: "",
+      loading: false,
       tutorial: {
         title: "",
         channel: "",
@@ -96,61 +98,73 @@ class AddTutorial extends Component {
     })
   }
 
-  scrapeTutorial = async () => {
-    const { code } = this.state;
-    const payload = { code };
-    await api.scrapeYoutube(payload).then(res => {
-      window.alert(`Video with ID a${code} scraped successfully`);
-      this.setState({
-        tutorial: 
-          {
-            title: res.data.scrapeResults.title,
-            channel: res.data.scrapeResults.channel,
-            description: res.data.scrapeResults.description,
-            date: res.data.scrapeResults.date,
-            embedUrl: res.data.scrapeResults.embedUrl,
-            watchUrl: res.data.scrapeResults.watchUrl,
-          }
-      })
-    });
+  handleScrapeTutorial = async () => {
+    this.setState({ 
+      loading: true 
+    }, async () => {
+      const { code } = this.state;
+      const payload = { code };
+      await api.scrapeYoutube(payload).then(res => {
+        this.setState({
+          loading: false,
+          tutorial: 
+            {
+              title: res.data.scrapeResults.title,
+              channel: res.data.scrapeResults.channel,
+              description: res.data.scrapeResults.description,
+              date: res.data.scrapeResults.date,
+              embedUrl: res.data.scrapeResults.embedUrl,
+              watchUrl: res.data.scrapeResults.watchUrl,
+            }
+        })
+      });
+    })
 
   };
 
   render() {
     const { code } = this.state;
     
-    const enterID = (
-      <Wrapper>
-        <Title>Enter Youtube Video ID</Title>
-        <Label>ID: </Label>
-        <InputText
-          type="text"
-          defaultValue={code} 
-          onChange={this.handleChangeCode}
-        />
- 
-        <Button onClick={this.scrapeTutorial}>Load Tutorial</Button>
-        <CancelButton href={"/tutorials/list"}>Cancel</CancelButton>
-      </Wrapper>
-    )
 
-    const editResults = (
-      <EditResults 
-        tutorial={this.state.tutorial} 
-        onChangeTitle={this.handleChangeTitle}
-        onChangeDescription={this.handleChangeDescription}
-        onCreateTutorial={this.handleCreateTutorial}
-        onResetState={this.handleResetState}
-      />
-    )
+    let content;
     
-    const content = !this.state.tutorial.title ? enterID : editResults;
+    if(this.state.loading) {
+      content = <Loading />
+    }else if (!this.state.tutorial.title) {
+      content = (
+        <Wrapper>
+          {this.state.loading ? <h1>I'm Loading Here!</h1> : null }
+          <Title>Enter Youtube Video ID</Title>
+          <Label>ID: </Label>
+          <InputText
+            type="text"
+            defaultValue={code} 
+            onChange={this.handleChangeCode}
+          />
     
+          <Button onClick={this.handleScrapeTutorial}>Load Tutorial</Button>
+          <CancelButton href={"/tutorials/list"}>Cancel</CancelButton>
+        </Wrapper>
+      )
+    }else {
+      content = (
+        <EditResults 
+          tutorial={this.state.tutorial} 
+          onChangeTitle={this.handleChangeTitle}
+          onChangeDescription={this.handleChangeDescription}
+          onCreateTutorial={this.handleCreateTutorial}
+          onResetState={this.handleResetState}
+          loading={this.state.loading}
+        />
+      )
+    }
+     
     return (
       <div>
         {content}
       </div>
     );
+    
   }
 }
 
