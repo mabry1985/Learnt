@@ -3,8 +3,10 @@ import api from "../api";
 import styled from "styled-components";
 import Tutorial from './Tutorial';
 
-const Wrapper = styled.div`
-  padding: 0 40px 40px 40px;
+const Wrapper = styled.div.attrs({
+  className: "container"
+})`
+  margin: 0 30px;
 `;
 
 class TutorialsList extends Component {
